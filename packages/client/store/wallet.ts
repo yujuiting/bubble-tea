@@ -24,7 +24,7 @@ const slice = createSlice({
       state.wallets.push(action.payload);
     },
     remove: (state, action: PayloadAction<Wallet>) => {
-      const index = state.wallets.indexOf(action.payload);
+      const index = state.wallets.findIndex(wallet => wallet.id === action.payload.id);
       state.wallets.splice(index, 1);
     },
     restore: (state, action: PayloadAction<Wallet[]>) => {
