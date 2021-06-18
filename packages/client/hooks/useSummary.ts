@@ -33,7 +33,7 @@ export function useAllSummary() {
 
 export function useWalletSummary(wallet: Wallet) {
   const balances = useSelector(walletBalances.select(wallet)).data || [];
-  const isLoading = useSelector(walletBalances.select(wallet)).isLoading || [];
+  const isLoading = useSelector(walletBalances.select(wallet)).isLoading;
   const [balance, isLoadingBalance] = useSummaryFromBalances(balances);
   return [balance, isLoading || isLoadingBalance] as const;
 }
