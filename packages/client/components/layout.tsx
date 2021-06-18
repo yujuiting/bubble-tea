@@ -1,5 +1,6 @@
+import { Grid, Stack } from '@chakra-ui/react';
+import Head from 'next/head';
 import React from 'react';
-import { Grid, HStack, Link } from '@chakra-ui/react';
 
 export interface LayoutProps {
   children: React.ReactNode;
@@ -28,11 +29,14 @@ export default function Layout({ children }: LayoutProps) {
 
   return (
     <Grid templateRows="40px auto 40px" gap={3} padding={3} height="100vh" overflow="hidden">
-      <HStack>{headerChildren}</HStack>
+      <Head>
+        <title>Bubble Tea | Crypto assets tracker</title>
+      </Head>
+      <Stack direction="row">{headerChildren}</Stack>
       {restChildren}
-      <HStack justifyContent="center" alignItems="center" width="100%" height="100%">
+      <Stack direction="row" justifyContent="center" alignItems="center" width="100%" height="100%">
         {footerChildren}
-      </HStack>
+      </Stack>
     </Grid>
   );
 }

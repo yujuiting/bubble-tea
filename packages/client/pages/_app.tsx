@@ -1,12 +1,12 @@
-import { AppProps } from 'next/app';
 import { ChakraProvider } from '@chakra-ui/react';
-import { Provider } from 'react-redux';
-import theme from 'theme';
-import store from 'store';
 import { BackendProvider } from 'contexts/backend';
 import { TokenMarketProvider } from 'contexts/token-market';
-import { Backend, indexedDBBackend } from 'services/backend';
+import { AppProps } from 'next/app';
 import { useEffect, useState } from 'react';
+import { Provider } from 'react-redux';
+import { Backend, indexedDBBackend } from 'services/backend';
+import store from 'store';
+import theme from 'theme';
 
 function MyApp({ Component, pageProps }: AppProps) {
   const [backend, setBackend] = useState<Backend>();

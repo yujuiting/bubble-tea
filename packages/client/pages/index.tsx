@@ -1,23 +1,23 @@
-import { useEffect } from 'react';
-import { AspectRatio, Spacer, Stack, Text } from '@chakra-ui/layout';
 import { Wallet } from '@bubble-tea/base';
-import Layout, { Header, Footer } from 'components/layout';
-import NewWalletSection from 'components/new-wallet-section';
-import WalletAssets from 'components/wallet-assets';
-import SelectVsCurrency from 'components/select-vs-currency';
-import DarkModeSwitch from 'components/dark-mode-switch';
-import AssetSummary from 'components/asset-summary';
-import TokenAmountPie from 'components/token-amount-pie';
-import Container from 'components/container';
+import { AspectRatio, Spacer, Stack, Text } from '@chakra-ui/layout';
 import AssetList from 'components/asset-list';
-import GitHubButton from 'components/github-button';
-import CoinGeckoLink from 'components/coin-gecko-link';
-import EtherscanLink from 'components/etherscan-link';
+import AssetSummary from 'components/asset-summary';
 import BscscanLink from 'components/bscscan-link';
+import CoinGeckoLink from 'components/coin-gecko-link';
+import Container from 'components/container';
+import DarkModeSwitch from 'components/dark-mode-switch';
+import EtherscanLink from 'components/etherscan-link';
+import GitHubButton from 'components/github-button';
+import Layout, { Footer, Header } from 'components/layout';
+import NewWalletSection from 'components/new-wallet-section';
+import SelectVsCurrency from 'components/select-vs-currency';
+import TokenAmountPie from 'components/token-amount-pie';
+import WalletAssets from 'components/wallet-assets';
+import { useBackend } from 'contexts/backend';
 import { useDispatcher, useSelector } from 'hooks/store';
 import { useAllTokenAmounts } from 'hooks/useSummary';
+import { useEffect } from 'react';
 import * as wallet from 'store/wallet';
-import { useBackend } from 'contexts/backend';
 
 export default function Index() {
   const vsCurrency = useSelector(wallet.selectVsCurrency);
