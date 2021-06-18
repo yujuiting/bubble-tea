@@ -26,13 +26,16 @@ export function useAllTokenAmounts() {
 }
 
 export function useAllSummary() {
-  const [tokenAmounts] = useAllTokenAmounts();
-  return useSummaryFromBalances(tokenAmounts);
+  const [tokenAmounts, isLoading] = useAllTokenAmounts();
+  const [balance, isLoadingBalance] = useSummaryFromBalances(tokenAmounts);
+  return [balance, isLoading || isLoadingBalance] as const;
 }
 
 export function useWalletSummary(wallet: Wallet) {
   const balances = useSelector(walletBalances.select(wallet)).data || [];
-  return useSummaryFromBalances(balances);
+  const isLoading = useSelector(walletBalances.select(wallet)).isLoading || [];
+  const [balance, isLoadingBalance] = useSummaryFromBalances(balances);
+  return [balance, isLoading || isLoadingBalance] as const;
 }
 
 function useSummaryFromBalances(balances: TokenAmount[]) {
