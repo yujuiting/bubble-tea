@@ -1,0 +1,17 @@
+[
+  {
+    "id": "eth",
+    "name": "Ethereum",
+    "nativeToken": "ETH"
+  },
+  {
+    "id": "bsc",
+    "name": "Binance Smart Chain",
+    "nativeToken": "BNB"
+  },
+  {
+    "id": "sol",
+    "name": "Solana",
+    "nativeToken": "SOL"
+  }
+]
