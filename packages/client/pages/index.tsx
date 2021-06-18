@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { AspectRatio, Spacer, Stack, Text } from '@chakra-ui/layout';
 import { Wallet } from '@bubble-tea/base';
-import Layout, { Header } from 'components/layout';
+import Layout, { Header, Footer } from 'components/layout';
 import NewWalletSection from 'components/new-wallet-section';
 import WalletAssets from 'components/wallet-assets';
 import SelectVsCurrency from 'components/select-vs-currency';
@@ -10,6 +10,10 @@ import AssetSummary from 'components/asset-summary';
 import TokenAmountPie from 'components/token-amount-pie';
 import Container from 'components/container';
 import AssetList from 'components/asset-list';
+import GitHubButton from 'components/github-button';
+import CoinGeckoLink from 'components/coin-gecko-link';
+import EtherscanLink from 'components/etherscan-link';
+import BscscanLink from 'components/bscscan-link';
 import { useDispatcher, useSelector } from 'hooks/store';
 import { useAllTokenAmounts } from 'hooks/useSummary';
 import * as wallet from 'store/wallet';
@@ -43,6 +47,7 @@ export default function Index() {
         <Spacer />
         <SelectVsCurrency value={vsCurrency} onValueChange={setVsCurrency} />
         <DarkModeSwitch />
+        <GitHubButton />
       </Header>
       <Stack direction="row" height="100%" overflow="hidden">
         <Stack direction="column" height="100%" overflow="auto">
@@ -66,6 +71,14 @@ export default function Index() {
           </Container>
         </Stack>
       </Stack>
+      <Footer>
+        <Stack direction="row" spacing={8} alignItems="center">
+          <Text>Date source</Text>
+          <CoinGeckoLink />
+          <EtherscanLink />
+          <BscscanLink />
+        </Stack>
+      </Footer>
     </Layout>
   );
 }

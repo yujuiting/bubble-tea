@@ -10,8 +10,8 @@ build-packages:
 	yarn workspace @bubble-tea/binance-smart-chain build && \
 	yarn workspace @bubble-tea/ethereum build && \
 	yarn workspace @bubble-tea/solana build && \
-	yarn workspace @bubble-tea/network-provider build && \
-	yarn workspace @bubble-tea/beefy.finance build
+	yarn workspace @bubble-tea/beefy.finance build && \
+	yarn workspace @bubble-tea/network-provider build
 
 dev:
 	yarn workspace @bubble-tea/client dev

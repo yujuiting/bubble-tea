@@ -79,9 +79,9 @@ export default function AssetList({ balances = [], isLoading, ...props }: AssetL
           </Tr>
         </Thead>
         <Tbody>
-          {isLoading && skeletonRow.map(row => <Item row={row} vsCurrency={vsCurrency} />)}
+          {isLoading && skeletonRow.map((row, index) => <Item key={index} row={row} vsCurrency={vsCurrency} />)}
           {rows.map(row => (
-            <Item row={row} vsCurrency={vsCurrency} />
+            <Item key={row.amount.token.symbol} row={row} vsCurrency={vsCurrency} />
           ))}
         </Tbody>
       </Table>
