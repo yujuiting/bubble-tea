@@ -1,15 +1,20 @@
-import { useTokenAmountValue } from 'contexts/token-market';
-import { useMemo } from 'react';
-import { displayNumber } from 'utils';
-
-import { isLoadedResource, isTruthy, Resource, TokenAmount } from '@bubble-tea/base';
+import { isLoadedResource, loadedResource, Resource, TokenAmount } from '@bubble-tea/base';
 import { useColorModeValue } from '@chakra-ui/react';
 import { Stat, StatLabel, StatNumber } from '@chakra-ui/stat';
 import { PieTooltipProps, ResponsivePie } from '@nivo/pie';
+import { useTokenAmountValue } from 'contexts/token-market';
+import { useTokenAmountIncludeContains } from 'hooks/use-token-amounts';
+import { useMemo } from 'react';
+import { displayNumber } from 'utils';
 
-function toData({ token }: TokenAmount, resource: Resource<number>) {
-  const value = isLoadedResource(resource) ? resource.data : 0;
-  return { id: token.symbol, label: token.name, value };
+function toData(tokenAmount: TokenAmount, resources: Map<TokenAmount, Resource<number>>) {
+  const resource = resources.get(tokenAmount) || loadedResource(0);
+  let value = isLoadedResource(resource) ? resource.data : 0;
+  if (tokenAmount.contains) {
+    const containRows = tokenAmount.contains.map(containTokenAmount => toData(containTokenAmount, resources));
+    value = containRows.reduce((acc, curr) => acc + curr.value, 0);
+  }
+  return { id: tokenAmount.token.symbol, label: tokenAmount.token.name, value };
 }
 
 export interface TokenAmountPieProps {
@@ -17,18 +22,11 @@ export interface TokenAmountPieProps {
 }
 
 export default function TokenAmountPie({ tokenAmounts }: TokenAmountPieProps) {
-  const values = useTokenAmountValue(tokenAmounts);
+  const allTokenAmounts = useTokenAmountIncludeContains(tokenAmounts);
 
-  const data = useMemo(
-    () =>
-      tokenAmounts
-        .map(tokenAmount => {
-          const value = values.get(tokenAmount);
-          if (value) return toData(tokenAmount, value);
-        })
-        .filter(isTruthy),
-    [tokenAmounts, values],
-  );
+  const values = useTokenAmountValue(allTokenAmounts);
+
+  const data = useMemo(() => tokenAmounts.map(tokenAmount => toData(tokenAmount, values)), [tokenAmounts, values]);
 
   return (
     <ResponsivePie

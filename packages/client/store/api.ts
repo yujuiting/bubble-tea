@@ -6,7 +6,7 @@ const api = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({ baseUrl: 'api' }),
   endpoints: builder => ({
-    walletBalances: builder.query<(TokenAmount | PoolAmount)[], Wallet>({
+    walletBalances: builder.query<TokenAmount[], Wallet>({
       query: ({ chain, address }: Wallet) => `balance/${chain.id}/${address}`,
     }),
     vsCurrencies: builder.query({

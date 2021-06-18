@@ -9,7 +9,7 @@ import DisplayAddress from 'components/display-address';
 import DisplayChain from 'components/display-chain';
 import DisplayValue from 'components/display-value';
 import { useSelector } from 'hooks/store';
-import { useWalletSummary } from 'hooks/useSummary';
+import { useWalletSummary } from 'hooks/use-summary';
 import { useEffect } from 'react';
 import { useLazyWalletBalancesQuery } from 'store/api';
 import { selectVsCurrency } from 'store/wallet';

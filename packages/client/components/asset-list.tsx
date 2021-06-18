@@ -16,6 +16,7 @@ import { Collapse } from '@chakra-ui/transition';
 import DisplayValue from 'components/display-value';
 import { useTokenAmountValue } from 'contexts/token-market';
 import { useSelector } from 'hooks/store';
+import { useTokenAmountIncludeContains } from 'hooks/use-token-amounts';
 import { useMemo } from 'react';
 import { selectVsCurrency } from 'store/wallet';
 
@@ -54,14 +55,7 @@ export interface AssetListProps extends TableProps {
 }
 
 export default function AssetList({ balances = [], isLoading, ...props }: AssetListProps) {
-  const allBalances = useMemo(() => {
-    const result: TokenAmount[] = [];
-    for (const tokenAmount of balances) {
-      result.push(tokenAmount);
-      if (tokenAmount.contains) result.push(...tokenAmount.contains);
-    }
-    return result;
-  }, [balances]);
+  const allBalances = useTokenAmountIncludeContains(balances);
 
   const values = useTokenAmountValue(allBalances);
 

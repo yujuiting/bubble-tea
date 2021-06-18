@@ -15,7 +15,7 @@ import TokenAmountPie from 'components/token-amount-pie';
 import WalletAssets from 'components/wallet-assets';
 import { useBackend } from 'contexts/backend';
 import { useDispatcher, useSelector } from 'hooks/store';
-import { useAllTokenAmounts } from 'hooks/useSummary';
+import { useAllTokenAmounts } from 'hooks/use-token-amounts';
 import { useEffect } from 'react';
 import * as wallet from 'store/wallet';
 

@@ -1,40 +1,20 @@
-import {
-  groupTokenAmounts,
-  isLoadedResource,
-  isLoadingResource,
-  isTruthy,
-  mergeTokenAmounts,
-  TokenAmount,
-  toNumber,
-  Wallet,
-} from '@bubble-tea/base';
+import { isLoadedResource, isLoadingResource, isTruthy, TokenAmount, toNumber, Wallet } from '@bubble-tea/base';
 import { useTokenMarket } from 'contexts/token-market';
 import { useSelector } from 'hooks/store';
+import { useAllTokenAmounts, useTokenAmountIncludeContains } from 'hooks/use-token-amounts';
 import { useMemo } from 'react';
 import { walletBalances } from 'store/api';
-import { selectWallets } from 'store/wallet';
-
-export function useAllTokenAmounts() {
-  const wallets = useSelector(selectWallets);
-  const allTokenAmounts = useSelector(state => wallets.map(wallet => walletBalances.select(wallet)(state).data).flat());
-  const isLoading = useSelector(state => wallets.some(wallet => walletBalances.select(wallet)(state).isLoading));
-  const tokenAmounts = useMemo(
-    () => groupTokenAmounts(allTokenAmounts.filter(isTruthy)).map(mergeTokenAmounts),
-    [allTokenAmounts],
-  );
-  return [tokenAmounts, isLoading] as const;
-}
 
 export function useAllSummary() {
-  const [tokenAmounts, isLoading] = useAllTokenAmounts();
+  const [tokenAmounts, isLoading] = useAllTokenAmounts(true);
   const [balance, isLoadingBalance] = useSummaryFromBalances(tokenAmounts);
   return [balance, isLoading || isLoadingBalance] as const;
 }
 
 export function useWalletSummary(wallet: Wallet) {
-  const balances = useSelector(walletBalances.select(wallet)).data || [];
-  const isLoading = useSelector(walletBalances.select(wallet)).isLoading;
-  const [balance, isLoadingBalance] = useSummaryFromBalances(balances);
+  const { data = [], isLoading } = useSelector(walletBalances.select(wallet));
+  const tokenAmounts = useTokenAmountIncludeContains(data);
+  const [balance, isLoadingBalance] = useSummaryFromBalances(tokenAmounts);
   return [balance, isLoading || isLoadingBalance] as const;
 }
 

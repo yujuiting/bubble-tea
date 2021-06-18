@@ -2,7 +2,7 @@ import { Skeleton } from '@chakra-ui/skeleton';
 import { Text } from '@chakra-ui/layout';
 import { displayNumber } from 'utils';
 import { selectVsCurrency } from 'store/wallet';
-import { useAllSummary } from 'hooks/useSummary';
+import { useAllSummary } from 'hooks/use-summary';
 import { useSelector } from 'hooks/store';
 
 export default function AssetSummary() {
