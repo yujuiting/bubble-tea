@@ -72,17 +72,29 @@ export async function fetchCoinList() {
 const nameAndSymbolToId = new Map<string, string>();
 
 export async function findCoinGeckoId(name: string, symbol: string) {
-  name = name.replace(/[-\.\s]/g, '').toLowerCase();
+  name = name.toLowerCase();
   symbol = symbol.toLowerCase();
+
   let id = nameAndSymbolToId.get(cacheKey(name, symbol));
   if (id) return id;
+
   const coinList = await coinListCache.get();
+
   const candidates = coinList.filter(coin => coin.symbol.toLowerCase() === symbol);
+
   if (candidates.length === 1) {
     id = candidates[0].id;
   } else if (candidates.length > 1) {
     id = candidates.find(coin => coin.name.replace(/[-\.\s]/g, '').toLowerCase() === name)?.id;
   }
+
+  if (!id) {
+    name = name.replace(/\stoken$/, '');
+    id = candidates.find(coin => coin.name.replace(/[-\.\s]/g, '').toLowerCase() === name)?.id;
+  }
+
   if (id) nameAndSymbolToId.set(cacheKey(name, symbol), id);
   return id;
 }
+
+findCoinGeckoId('Cardano Token', 'ADA').then(console.log);
