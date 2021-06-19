@@ -10,8 +10,8 @@
       "request": "launch",
       "runtimeExecutable": "node",
       "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only", "-r", "tsconfig-paths/register"],
-      "args": ["node_modules/.bin/next"],
-      "cwd": "${workspaceRoot}",
+      "args": ["../../node_modules/.bin/next"],
+      "cwd": "${workspaceRoot}/packages/client",
       "internalConsoleOptions": "openOnSessionStart",
       "skipFiles": ["<node_internals>/**", "node_modules/**"]
     },
@@ -24,7 +24,8 @@
       "args": ["${file}"],
       "cwd": "${workspaceRoot}",
       "internalConsoleOptions": "openOnSessionStart",
-      "skipFiles": ["<node_internals>/**", "node_modules/**"]
+      "skipFiles": ["<node_internals>/**", "node_modules/**"],
+      "envFile": "${workspaceFolder}/packages/client/.env"
     }
   ]
 }
