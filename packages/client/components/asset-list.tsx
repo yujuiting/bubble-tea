@@ -50,14 +50,14 @@ export interface AssetListProps extends TableProps {
   balances?: TokenAmount[];
   onChangeTokenVisible?: (token: Token, visible: boolean) => void;
   hideTokens?: string[];
-  hideToggleVisibleButton?: boolean;
+  hideChangeVisibleButton?: boolean;
 }
 
 export default function AssetList({
   balances = [],
   hideTokens = [],
   onChangeTokenVisible = noop,
-  hideToggleVisibleButton = false,
+  hideChangeVisibleButton = false,
   ...props
 }: AssetListProps) {
   const allBalances = useTokenAmountIncludeContains(balances);
@@ -89,7 +89,7 @@ export default function AssetList({
         <Tr>
           <Th>Balance</Th>
           <Th>Value</Th>
-          <Th>{renderToggleVisible()}</Th>
+          {!hideChangeVisibleButton && <Th>{renderToggleVisible()}</Th>}
         </Tr>
       </Thead>
       <Tbody>
@@ -100,7 +100,7 @@ export default function AssetList({
             vsCurrency={vsCurrency}
             visible={!hideTokens.includes(cacheKey(row.amount.token.symbol, row.amount.token.name))}
             onChangeTokenVisible={onChangeTokenVisible}
-            hideToggleVisibleButton={hideToggleVisibleButton}
+            hideChangeVisibleButton={hideChangeVisibleButton}
           />
         ))}
       </Tbody>
@@ -113,7 +113,7 @@ interface ItemProps {
   vsCurrency: string;
   visible?: boolean;
   onChangeTokenVisible?: (token: Token, visible: boolean) => void;
-  hideToggleVisibleButton?: boolean;
+  hideChangeVisibleButton?: boolean;
 }
 
 function Item({
@@ -121,7 +121,7 @@ function Item({
   vsCurrency,
   visible = true,
   onChangeTokenVisible = noop,
-  hideToggleVisibleButton = false,
+  hideChangeVisibleButton = false,
 }: ItemProps) {
   const { isOpen, onToggle } = useDisclosure();
 
@@ -170,8 +170,8 @@ function Item({
           <DisplayValue value={value} unit={vsCurrency.toUpperCase()} />
         </Skeleton>
       </Td>
-      <Td>
-        {!hideToggleVisibleButton && (
+      {!hideChangeVisibleButton && (
+        <Td>
           <Tooltip label="Toggle visible on charts">
             <IconButton
               variant="ghost"
@@ -180,8 +180,8 @@ function Item({
               onClick={() => onChangeTokenVisible(amount.token, !visible)}
             />
           </Tooltip>
-        )}
-      </Td>
+        </Td>
+      )}
     </Tr>
   );
 }

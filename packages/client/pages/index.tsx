@@ -64,7 +64,7 @@ export default function Index() {
           </Container>
           <Container flexGrow={1} overflow="auto">
             <Skeleton isLoaded={!isLoading}>
-              <AssetList balances={tokenAmounts} hideToggleVisibleButton />
+              <AssetList balances={tokenAmounts} hideChangeVisibleButton />
             </Skeleton>
           </Container>
           <Container height="70%">
