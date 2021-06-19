@@ -96,5 +96,3 @@ export async function findCoinGeckoId(name: string, symbol: string) {
   if (id) nameAndSymbolToId.set(cacheKey(name, symbol), id);
   return id;
 }
-
-findCoinGeckoId('Cardano Token', 'ADA').then(console.log);

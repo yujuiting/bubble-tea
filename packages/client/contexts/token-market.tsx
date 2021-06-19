@@ -13,6 +13,7 @@ import {
 } from '@bubble-tea/base';
 import { Market } from '@bubble-tea/coin-gecko';
 import { useSelector } from 'hooks/store';
+import useDebouncedValue from 'hooks/use-debounced-value';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useLazyCoinMarketsQuery } from 'store/api';
 import { selectVsCurrency } from 'store/wallet';
@@ -39,6 +40,8 @@ export function TokenMarketProvider({ children }: TokenMarketProviderProps) {
 
   const [fetch, { data: coinMarkets = [] }] = useLazyCoinMarketsQuery();
 
+  const debouncedCoinMarkets = useDebouncedValue(coinMarkets);
+
   useEffect(() => {
     const timer = setTimeout(() => fetch({ vsCurrency, coinGeckoIds }), 500);
     return () => clearTimeout(timer);
@@ -55,21 +58,7 @@ export function TokenMarketProvider({ children }: TokenMarketProviderProps) {
       }
       return { ...next };
     });
-  }, [vsCurrency]);
-
-  /**
-   * init unloaded resources to loading state
-   */
-  useEffect(() => {
-    setResources(prev => {
-      const next = { ...prev };
-      for (const id of coinGeckoIds) {
-        if (id in next) continue;
-        next[id] = loadingResource();
-      }
-      return { ...next };
-    });
-  }, [coinGeckoIds]);
+  }, [vsCurrency, coinGeckoIds]);
 
   /**
    * update resource by response
@@ -87,7 +76,7 @@ export function TokenMarketProvider({ children }: TokenMarketProviderProps) {
       }
       return next;
     });
-  }, [coinMarkets]);
+  }, [debouncedCoinMarkets]);
 
   const add = useCallback((id: string) => setCoingeckoIds(prev => (prev.includes(id) ? prev : [...prev, id])), []);
 

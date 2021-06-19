@@ -1,15 +1,17 @@
 import {
+  cacheKey,
   isLoadedResource,
   isLoadingResource,
   isPoolAmount,
   loadedResource,
-  noopTokenAmount,
+  noop,
   Resource as IResource,
+  Token,
   TokenAmount,
   toNumber,
 } from '@bubble-tea/base';
 import { ChevronRightIcon } from '@chakra-ui/icons';
-import { Button, TableProps, useDisclosure } from '@chakra-ui/react';
+import { Button, Icon, IconButton, TableProps, Tooltip, useDisclosure } from '@chakra-ui/react';
 import { Skeleton } from '@chakra-ui/skeleton';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@chakra-ui/table';
 import { Collapse } from '@chakra-ui/transition';
@@ -18,6 +20,7 @@ import { useTokenAmountValue } from 'contexts/token-market';
 import { useSelector } from 'hooks/store';
 import { useTokenAmountIncludeContains } from 'hooks/use-token-amounts';
 import { useMemo } from 'react';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { selectVsCurrency } from 'store/wallet';
 
 interface Row {
@@ -26,12 +29,6 @@ interface Row {
   amount: TokenAmount;
   isLoading: boolean;
 }
-
-const skeletonRow: Row[] = [
-  { balance: 123456, value: 123456, amount: noopTokenAmount, isLoading: false },
-  { balance: 123456, value: 123456, amount: noopTokenAmount, isLoading: false },
-  { balance: 123456, value: 123456, amount: noopTokenAmount, isLoading: false },
-];
 
 function toRow(tokenAmount: TokenAmount, resources: Map<TokenAmount, IResource<number>>): Row {
   const resource = resources.get(tokenAmount) || loadedResource(0);
@@ -51,10 +48,18 @@ function sortRow(a: Row, b: Row) {
 
 export interface AssetListProps extends TableProps {
   balances?: TokenAmount[];
-  isLoading?: boolean;
+  onChangeTokenVisible?: (token: Token, visible: boolean) => void;
+  hideTokens?: string[];
+  hideToggleVisibleButton?: boolean;
 }
 
-export default function AssetList({ balances = [], isLoading, ...props }: AssetListProps) {
+export default function AssetList({
+  balances = [],
+  hideTokens = [],
+  onChangeTokenVisible = noop,
+  hideToggleVisibleButton = false,
+  ...props
+}: AssetListProps) {
   const allBalances = useTokenAmountIncludeContains(balances);
 
   const values = useTokenAmountValue(allBalances);
@@ -63,27 +68,61 @@ export default function AssetList({ balances = [], isLoading, ...props }: AssetL
 
   const vsCurrency = useSelector(selectVsCurrency);
 
+  const hasHiddenTokens = hideTokens.length > 0;
+
+  function renderToggleVisible() {
+    return (
+      <Tooltip label="Toggle visible on charts">
+        <IconButton
+          variant="ghost"
+          aria-label="toggle visible"
+          icon={<Icon as={hasHiddenTokens ? FaEyeSlash : FaEye} />}
+          onClick={() => balances.forEach(({ token }) => onChangeTokenVisible(token, hasHiddenTokens))}
+        />
+      </Tooltip>
+    );
+  }
+
   return (
-    <Skeleton isLoaded={!isLoading}>
-      <Table {...props}>
-        <Thead>
-          <Tr>
-            <Th>Balance</Th>
-            <Th>Value</Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          {isLoading && skeletonRow.map((row, index) => <Item key={index} row={row} vsCurrency={vsCurrency} />)}
-          {rows.map(row => (
-            <Item key={row.amount.token.symbol} row={row} vsCurrency={vsCurrency} />
-          ))}
-        </Tbody>
-      </Table>
-    </Skeleton>
+    <Table {...props}>
+      <Thead>
+        <Tr>
+          <Th>Balance</Th>
+          <Th>Value</Th>
+          <Th>{renderToggleVisible()}</Th>
+        </Tr>
+      </Thead>
+      <Tbody>
+        {rows.map(row => (
+          <Item
+            key={row.amount.token.symbol}
+            row={row}
+            vsCurrency={vsCurrency}
+            visible={!hideTokens.includes(cacheKey(row.amount.token.symbol, row.amount.token.name))}
+            onChangeTokenVisible={onChangeTokenVisible}
+            hideToggleVisibleButton={hideToggleVisibleButton}
+          />
+        ))}
+      </Tbody>
+    </Table>
   );
 }
 
-function Item({ row, vsCurrency }: { row: Row; vsCurrency: string }) {
+interface ItemProps {
+  row: Row;
+  vsCurrency: string;
+  visible?: boolean;
+  onChangeTokenVisible?: (token: Token, visible: boolean) => void;
+  hideToggleVisibleButton?: boolean;
+}
+
+function Item({
+  row,
+  vsCurrency,
+  visible = true,
+  onChangeTokenVisible = noop,
+  hideToggleVisibleButton = false,
+}: ItemProps) {
   const { isOpen, onToggle } = useDisclosure();
 
   const { balance, value, amount, isLoading } = row;
@@ -130,6 +169,18 @@ function Item({ row, vsCurrency }: { row: Row; vsCurrency: string }) {
         <Skeleton isLoaded={!isLoading}>
           <DisplayValue value={value} unit={vsCurrency.toUpperCase()} />
         </Skeleton>
+      </Td>
+      <Td>
+        {!hideToggleVisibleButton && (
+          <Tooltip label="Toggle visible on charts">
+            <IconButton
+              variant="ghost"
+              aria-label="toggle visible"
+              icon={<Icon as={visible ? FaEye : FaEyeSlash} />}
+              onClick={() => onChangeTokenVisible(amount.token, !visible)}
+            />
+          </Tooltip>
+        )}
       </Td>
     </Tr>
   );

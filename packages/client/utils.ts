@@ -1,3 +1,5 @@
+import { cacheKey, TokenAmount } from '@bubble-tea/base';
+
 export function copyText(value: unknown) {
   const elem = document.createElement('input');
   elem.value = `${value}`;
@@ -17,4 +19,12 @@ export function getLocale() {
     return navigator.language;
   }
   return undefined;
+}
+
+export function filterVisibleTokenAmounts(tokenAmounts: TokenAmount[], hideTokens?: string[]) {
+  if (!hideTokens) return tokenAmounts;
+  return tokenAmounts.filter(tokenAmount => {
+    const key = cacheKey(tokenAmount.token.symbol, tokenAmount.token.name);
+    return !hideTokens.includes(key);
+  });
 }

@@ -1,10 +1,17 @@
-import { Wallet } from '@bubble-tea/base';
+import { cacheKey, Token, Wallet } from '@bubble-tea/base';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import type { RootState } from 'store';
 
+export interface UIWallet extends Wallet {
+  /**
+   * cacheKey(token.symbol, token.name);
+   */
+  hideTokens?: string[];
+}
+
 interface State {
   uid: string;
-  wallets: Wallet[];
+  wallets: UIWallet[];
   vsCurrency: string;
   syncing: boolean;
 }
@@ -39,10 +46,22 @@ const slice = createSlice({
     setUid: (state, action: PayloadAction<string>) => {
       state.uid = action.payload;
     },
+    setTokenVisible: (state, action: PayloadAction<{ wallet: Wallet; token: Token; visible: boolean }>) => {
+      const wallet = state.wallets.find(wallet => wallet.id === action.payload.wallet.id);
+      if (!wallet) return;
+      const key = cacheKey(action.payload.token.symbol, action.payload.token.name);
+      wallet.hideTokens = wallet.hideTokens || [];
+      if (action.payload.visible) {
+        const keyIndex = wallet.hideTokens.indexOf(key);
+        if (keyIndex !== -1) wallet.hideTokens.splice(keyIndex, 1);
+      } else {
+        wallet.hideTokens.push(key);
+      }
+    },
   },
 });
 
-export const { add, remove, setVsCurrency, setSyncing, restore } = slice.actions;
+export const { add, remove, setVsCurrency, setSyncing, restore, setTokenVisible } = slice.actions;
 
 export const selectUid = (state: RootState) => state.wallet.uid;
 

@@ -1,21 +1,21 @@
 import { noop, Wallet } from '@bubble-tea/base';
-import { Stack, StackProps, Spacer } from '@chakra-ui/layout';
 import { IconButton } from '@chakra-ui/button';
-import { Tooltip } from '@chakra-ui/tooltip';
 import { DeleteIcon } from '@chakra-ui/icons';
+import { Spacer, Stack, StackProps } from '@chakra-ui/layout';
 import { Skeleton } from '@chakra-ui/skeleton';
+import { Tooltip } from '@chakra-ui/tooltip';
 import AssetList from 'components/asset-list';
 import DisplayAddress from 'components/display-address';
 import DisplayChain from 'components/display-chain';
 import DisplayValue from 'components/display-value';
-import { useSelector } from 'hooks/store';
+import { useDispatcher, useSelector } from 'hooks/store';
 import { useWalletSummary } from 'hooks/use-summary';
 import { useEffect } from 'react';
 import { useLazyWalletBalancesQuery } from 'store/api';
-import { selectVsCurrency } from 'store/wallet';
+import { selectVsCurrency, setTokenVisible, UIWallet } from 'store/wallet';
 
 export interface WalletAssetsProps extends StackProps {
-  wallet: Wallet;
+  wallet: UIWallet;
   onRemove?: (wallet: Wallet) => void;
 }
 
@@ -28,7 +28,9 @@ export default function WalletAssets({ wallet, onRemove = noop, ...props }: Wall
 
   const [summary, isLoadingSummary] = useWalletSummary(wallet);
 
-  useEffect(() => fetch(wallet), [fetch, wallet]);
+  const onChangeTokenVisible = useDispatcher(setTokenVisible);
+
+  useEffect(() => fetch({ chainId: chain.id, address }), [fetch, chain.id, address]);
 
   return (
     <Stack direction="column" {...props}>
@@ -49,7 +51,13 @@ export default function WalletAssets({ wallet, onRemove = noop, ...props }: Wall
         </Tooltip>
       </Stack>
       <Stack direction="row" flexGrow={1}>
-        <AssetList balances={balances} isLoading={isLoading} width="30%" />
+        <Skeleton width="100%" isLoaded={!isLoading}>
+          <AssetList
+            balances={balances}
+            hideTokens={wallet.hideTokens}
+            onChangeTokenVisible={(token, visible) => onChangeTokenVisible({ wallet, token, visible })}
+          />
+        </Skeleton>
       </Stack>
     </Stack>
   );

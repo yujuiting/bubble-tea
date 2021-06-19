@@ -5,5 +5,8 @@
     "dev": "next",
     "build": "next build",
     "start": "next start"
+  },
+  "dependencies": {
+    "react-icons": "^4.2.0"
   }
 }

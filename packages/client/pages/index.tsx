@@ -1,5 +1,6 @@
 import { Wallet } from '@bubble-tea/base';
 import { AspectRatio, Spacer, Stack, Text } from '@chakra-ui/layout';
+import { Skeleton } from '@chakra-ui/react';
 import AssetList from 'components/asset-list';
 import AssetSummary from 'components/asset-summary';
 import BscscanLink from 'components/bscscan-link';
@@ -15,7 +16,7 @@ import TokenAmountPie from 'components/token-amount-pie';
 import WalletAssets from 'components/wallet-assets';
 import { useBackend } from 'contexts/backend';
 import { useDispatcher, useSelector } from 'hooks/store';
-import { useAllTokenAmounts } from 'hooks/use-token-amounts';
+import { useVisibleTokenAmounts } from 'hooks/use-token-amounts';
 import { useEffect } from 'react';
 import * as wallet from 'store/wallet';
 
@@ -26,7 +27,7 @@ export default function Index() {
 
   const setVsCurrency = useDispatcher(wallet.setVsCurrency);
 
-  const [tokenAmounts, isLoading] = useAllTokenAmounts();
+  const [tokenAmounts, isLoading] = useVisibleTokenAmounts();
 
   const { createWallet, destroyWallet, restore } = useBackend();
 
@@ -62,7 +63,9 @@ export default function Index() {
             </Stack>
           </Container>
           <Container flexGrow={1} overflow="auto">
-            <AssetList balances={tokenAmounts} isLoading={isLoading} />
+            <Skeleton isLoaded={!isLoading}>
+              <AssetList balances={tokenAmounts} hideToggleVisibleButton />
+            </Skeleton>
           </Container>
           <Container height="70%">
             <AspectRatio width="100%" ratio={1.6}>

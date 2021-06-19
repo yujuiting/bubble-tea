@@ -3,9 +3,14 @@ import { useSelector } from 'hooks/store';
 import { useMemo } from 'react';
 import { walletBalances } from 'store/api';
 import { selectWallets } from 'store/wallet';
+import { filterVisibleTokenAmounts } from 'utils';
 
 export function useTokenAmounts(wallets: Wallet[]) {
-  const tokenAmounts = useSelector(state => wallets.map(wallet => walletBalances.select(wallet)(state).data).flat());
+  const tokenAmounts = useSelector(state =>
+    wallets
+      .map(({ chain: { id: chainId }, address }) => walletBalances.select({ chainId, address })(state).data)
+      .flat(),
+  );
   return useMemo(() => tokenAmounts.filter(isTruthy), [tokenAmounts]);
 }
 
@@ -25,10 +30,26 @@ export function useAllTokenAmounts(flatContains = false) {
   const wallets = useSelector(selectWallets);
   const tokenAmounts = useTokenAmounts(wallets);
   const allTokenAmounts = useTokenAmountIncludeContains(tokenAmounts, !flatContains);
-  const isLoading = useSelector(state => wallets.some(wallet => walletBalances.select(wallet)(state).isLoading));
+  const isLoading = useSelector(state =>
+    wallets.some(({ chain: { id: chainId }, address }) => walletBalances.select({ chainId, address })(state).isLoading),
+  );
   const mergedTokenAmounts = useMemo(
     () => groupTokenAmounts(allTokenAmounts.filter(isTruthy)).map(mergeTokenAmounts),
     [allTokenAmounts],
   );
   return [mergedTokenAmounts, isLoading] as const;
+}
+
+export function useVisibleTokenAmounts(flatContains = false) {
+  const [tokenAmounts, isLoading] = useAllTokenAmounts(flatContains);
+  const wallets = useSelector(selectWallets);
+  const hideTokens = useMemo(
+    () => wallets.reduce((acc, { hideTokens = [] }) => [...acc, ...hideTokens], [] as string[]),
+    [wallets],
+  );
+  const visibleTokenAmounts = useMemo(
+    () => filterVisibleTokenAmounts(tokenAmounts, hideTokens),
+    [tokenAmounts, hideTokens],
+  );
+  return [visibleTokenAmounts, isLoading] as const;
 }

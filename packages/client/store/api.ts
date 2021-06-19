@@ -1,4 +1,4 @@
-import { PoolAmount, TokenAmount, Wallet } from '@bubble-tea/base';
+import { TokenAmount } from '@bubble-tea/base';
 import { fetchCoinMarkets, fetchSupportedVsCurrency } from '@bubble-tea/coin-gecko';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
@@ -6,8 +6,8 @@ const api = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({ baseUrl: 'api' }),
   endpoints: builder => ({
-    walletBalances: builder.query<TokenAmount[], Wallet>({
-      query: ({ chain, address }: Wallet) => `balance/${chain.id}/${address}`,
+    walletBalances: builder.query<TokenAmount[], { chainId: string; address: string }>({
+      query: ({ chainId, address }) => `balance/${chainId}/${address}`,
     }),
     vsCurrencies: builder.query({
       queryFn: (_: void) =>

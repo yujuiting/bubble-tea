@@ -11,8 +11,8 @@ export function useAllSummary() {
   return [balance, isLoading || isLoadingBalance] as const;
 }
 
-export function useWalletSummary(wallet: Wallet) {
-  const { data = [], isLoading } = useSelector(walletBalances.select(wallet));
+export function useWalletSummary({ chain: { id: chainId }, address }: Wallet) {
+  const { data = [], isLoading } = useSelector(walletBalances.select({ chainId, address }));
   const tokenAmounts = useTokenAmountIncludeContains(data);
   const [balance, isLoadingBalance] = useSummaryFromBalances(tokenAmounts);
   return [balance, isLoading || isLoadingBalance] as const;
