@@ -1,8 +1,10 @@
-import { fromArray, isAddress, NetworkProvider } from '@bubble-tea/base';
+import { fromArray, isAddress, NetworkProvider, Cache, TokenAmount, cacheKey } from '@bubble-tea/base';
 import { eth, bsc, sol } from '@bubble-tea/network-provider';
 import { NextApiRequest, NextApiResponse } from 'next/types';
 
 const chainIdToProvider: Record<string, NetworkProvider | undefined> = { eth, bsc, sol };
+
+const caches: Record<string, Cache<TokenAmount[]> | undefined> = {};
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { query, method } = req;
@@ -28,9 +30,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return;
   }
 
-  const allBalances = await provider.fetchBalance(address);
+  const key = cacheKey(chain, address);
 
-  const balances = allBalances.filter(balance => balance.amount !== '0');
+  let cache = caches[key];
 
-  res.status(200).json(balances);
+  if (!cache) {
+    cache = new Cache(async () => {
+      const allBalances = await provider.fetchBalance(address);
+      const balances = allBalances.filter(balance => balance.amount !== '0');
+      return balances;
+    }, 20);
+
+    caches[key] = cache;
+  }
+
+  res.status(200).json(await cache.get());
 }
