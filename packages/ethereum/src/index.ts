@@ -1,6 +1,5 @@
 import {
   Address,
-  BalanceFetcher,
   createUnkownToken,
   env,
   findTokenVariant,
@@ -11,7 +10,6 @@ import {
 } from '@bubble-tea/base';
 import { findCoinGeckoId } from '@bubble-tea/coin-gecko';
 import * as etherscan from '@bubble-tea/etherscan';
-import { BigNumber } from '@ethersproject/bignumber';
 import { Contract, ContractInterface } from '@ethersproject/contracts';
 import { InfuraProvider } from '@ethersproject/providers';
 
@@ -19,7 +17,7 @@ export const chain = mustFindChain('eth');
 
 export const nativeToken = mustFindToken(chain.nativeToken);
 
-const provider = new InfuraProvider('homestead', {
+export const provider = new InfuraProvider('homestead', {
   projectId: env('INFURA_PROJECT_ID'),
   projectSecret: env('INFURA_PROJECT_SECRET'),
 });
@@ -59,4 +57,13 @@ export async function fetchERC20Token(address: Address) {
   ]);
   const coinGeckoId = await findCoinGeckoId(name, symbol);
   return createUnkownToken({ name, symbol, coinGeckoId, variants: [{ chain, decimals, address }] });
+}
+
+export async function fetchTransactionReceipt(transactionHash: string) {
+  return await provider.getTransactionReceipt(transactionHash);
+}
+
+export async function fetchInteractedAddresses(transactionHash: string) {
+  const receipt = await fetchTransactionReceipt(transactionHash);
+  return receipt.logs.map(log => log.address);
 }

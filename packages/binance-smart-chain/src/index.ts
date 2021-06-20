@@ -17,7 +17,7 @@ export const chain = mustFindChain('bsc');
 
 export const nativeToken = mustFindToken(chain.nativeToken);
 
-const provider = new JsonRpcBatchProvider(env('BSC_ENDPOINT'));
+export const provider = new JsonRpcBatchProvider(env('BSC_ENDPOINT'));
 
 export async function fetchNativeTokenBalance(address: Address) {
   const balance = await provider.getBalance(address);
@@ -52,4 +52,13 @@ export async function fetchBEP20Token(address: Address) {
   ]);
   const coinGeckoId = await findCoinGeckoId(name, symbol);
   return createUnkownToken({ name, symbol, coinGeckoId, variants: [{ chain, decimals, address }] });
+}
+
+export async function fetchTransactionReceipt(transactionHash: string) {
+  return await provider.getTransactionReceipt(transactionHash);
+}
+
+export async function fetchInteractedAddresses(transactionHash: string) {
+  const receipt = await fetchTransactionReceipt(transactionHash);
+  return receipt.logs.map(log => log.address);
 }
