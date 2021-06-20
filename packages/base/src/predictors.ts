@@ -1,6 +1,7 @@
 import { Chain } from './chain';
+import { DefiProtocol } from './defi';
 import { Token, TokenVariant } from './token';
-import { TokenAmount, PoolAmount } from './token-amount';
+import { TokenAmount, PoolAmount, StakedAmount } from './token-amount';
 
 export function isTruthy<T>(value: T): value is Exclude<T, undefined | null | '' | 0> {
   return !!value;
@@ -60,11 +61,28 @@ export function isPoolAmount(value: unknown): value is PoolAmount {
   );
 }
 
+export function isStakedAmount(value: unknown): value is StakedAmount {
+  return must(
+    () => isTokenAmount(value),
+    () => isDefiProtocol(get<StakedAmount>(value, 'located')),
+    () => typeOf(get<StakedAmount>(value, 'isReward'), 'boolean', 'undefined'),
+  );
+}
+
+export function isDefiProtocol(value: unknown): value is DefiProtocol {
+  return must(
+    () => isObject(value),
+    () => typeOf(get<DefiProtocol>(value, 'name'), 'string'),
+    () => typeOf(get<DefiProtocol>(value, 'url'), 'string', 'undefined'),
+    () => typeOf(get<DefiProtocol>(value, 'icon'), 'string', 'undefined'),
+  );
+}
+
 function get<T>(obj: any, key: keyof T) {
   return obj[key];
 }
 
-type PrimitiveType = 'string' | 'number' | 'undefined' | 'object';
+type PrimitiveType = 'string' | 'number' | 'undefined' | 'object' | 'boolean';
 
 function typeOf(value: unknown, ...types: [PrimitiveType, ...PrimitiveType[]]) {
   for (const type of types) {

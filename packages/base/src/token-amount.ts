@@ -10,6 +10,7 @@ export interface TokenAmount {
   amount: string;
   contains?: TokenAmount[];
   located?: DefiProtocol;
+  isReward?: boolean;
 }
 
 export interface PoolAmount extends TokenAmount {
@@ -18,7 +19,6 @@ export interface PoolAmount extends TokenAmount {
 
 export interface StakedAmount extends TokenAmount {
   located: DefiProtocol;
-  isReward?: boolean;
 }
 
 export const noopTokenAmount: TokenAmount = {
@@ -33,14 +33,21 @@ export const noopPoolAmount: PoolAmount = {
 };
 
 export function mergeTokenAmounts([first, ...rests]: TokenAmount[]): TokenAmount {
-  const { chain, token, amount } = first;
+  const { chain, token, amount, located, isReward } = first;
   let bn = BigNumber.from(amount);
   for (const tokenAmount of rests) {
     bn.add(tokenAmount.amount);
   }
   const allContains = [first, ...rests].map(({ contains = [] }) => contains).flat();
   const contains = groupTokenAmounts(allContains).map(mergeTokenAmounts);
-  return { chain, token, amount: bn.toString(), contains: contains.length > 0 ? contains : undefined };
+  return {
+    chain,
+    token,
+    amount: bn.toString(),
+    contains: contains.length > 0 ? contains : undefined,
+    located,
+    isReward,
+  };
 }
 
 export function groupTokenAmounts(tokenAmounts: TokenAmount[]): TokenAmount[][] {
