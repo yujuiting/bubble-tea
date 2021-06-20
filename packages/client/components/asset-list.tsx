@@ -3,6 +3,7 @@ import {
   isLoadedResource,
   isLoadingResource,
   isPoolAmount,
+  isStakedAmount,
   loadedResource,
   noop,
   Resource as IResource,
@@ -11,7 +12,18 @@ import {
   toNumber,
 } from '@bubble-tea/base';
 import { ChevronRightIcon } from '@chakra-ui/icons';
-import { Button, Icon, IconButton, TableProps, Tooltip, useDisclosure } from '@chakra-ui/react';
+import {
+  Button,
+  Icon,
+  IconButton,
+  Link,
+  Stat,
+  StatHelpText,
+  StatNumber,
+  TableProps,
+  Tooltip,
+  useDisclosure,
+} from '@chakra-ui/react';
 import { Skeleton } from '@chakra-ui/skeleton';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@chakra-ui/table';
 import { Collapse } from '@chakra-ui/transition';
@@ -20,12 +32,14 @@ import { useTokenAmountValue } from 'contexts/token-market';
 import { useSelector } from 'hooks/store';
 import { useTokenAmountIncludeContains } from 'hooks/use-token-amounts';
 import { useMemo } from 'react';
-import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { FaEye, FaEyeSlash, FaExternalLinkAlt } from 'react-icons/fa';
 import { selectVsCurrency } from 'store/wallet';
+import { displayNumber } from 'utils';
 
 interface Row {
   balance: number;
   value: number;
+  rewardValue: number;
   amount: TokenAmount;
   isLoading: boolean;
 }
@@ -34,12 +48,19 @@ function toRow(tokenAmount: TokenAmount, resources: Map<TokenAmount, IResource<n
   const resource = resources.get(tokenAmount) || loadedResource(0);
   let isLoading = isLoadingResource(resource);
   let value = isLoadedResource(resource) ? resource.data : 0;
+  let rewardValue = 0;
   if (tokenAmount.contains) {
-    const containRows = tokenAmount.contains.map(containTokenAmount => toRow(containTokenAmount, resources));
-    isLoading = containRows.some(row => row.isLoading);
-    value = containRows.reduce((acc, curr) => acc + curr.value, 0);
+    const containRows: Row[] = [];
+    const rewardRows: Row[] = [];
+    for (const contain of tokenAmount.contains) {
+      if (contain.isReward) rewardRows.push(toRow(contain, resources));
+      containRows.push(toRow(contain, resources));
+    }
+    isLoading = [...containRows, ...rewardRows].some(row => row.isLoading);
+    rewardValue += rewardRows.reduce((acc, curr) => acc + curr.value, 0);
+    value += containRows.reduce((acc, curr) => acc + curr.value, 0) + rewardValue;
   }
-  return { balance: toNumber(tokenAmount), value, amount: tokenAmount, isLoading };
+  return { balance: toNumber(tokenAmount), value, rewardValue, amount: tokenAmount, isLoading };
 }
 
 function sortRow(a: Row, b: Row) {
@@ -51,6 +72,7 @@ export interface AssetListProps extends TableProps {
   onChangeTokenVisible?: (token: Token, visible: boolean) => void;
   hideTokens?: string[];
   hideChangeVisibleButton?: boolean;
+  hideGoToButton?: boolean;
 }
 
 export default function AssetList({
@@ -58,6 +80,7 @@ export default function AssetList({
   hideTokens = [],
   onChangeTokenVisible = noop,
   hideChangeVisibleButton = false,
+  hideGoToButton = false,
   ...props
 }: AssetListProps) {
   const allBalances = useTokenAmountIncludeContains(balances);
@@ -90,6 +113,7 @@ export default function AssetList({
           <Th>Balance</Th>
           <Th>Value</Th>
           {!hideChangeVisibleButton && <Th>{renderToggleVisible()}</Th>}
+          {!hideGoToButton && <Th />}
         </Tr>
       </Thead>
       <Tbody>
@@ -101,6 +125,7 @@ export default function AssetList({
             visible={!hideTokens.includes(cacheKey(row.amount.token.symbol, row.amount.token.name))}
             onChangeTokenVisible={onChangeTokenVisible}
             hideChangeVisibleButton={hideChangeVisibleButton}
+            hideGoToButton={hideGoToButton}
           />
         ))}
       </Tbody>
@@ -114,6 +139,7 @@ interface ItemProps {
   visible?: boolean;
   onChangeTokenVisible?: (token: Token, visible: boolean) => void;
   hideChangeVisibleButton?: boolean;
+  hideGoToButton?: boolean;
 }
 
 function Item({
@@ -122,10 +148,11 @@ function Item({
   visible = true,
   onChangeTokenVisible = noop,
   hideChangeVisibleButton = false,
+  hideGoToButton = false,
 }: ItemProps) {
   const { isOpen, onToggle } = useDisclosure();
 
-  const { balance, value, amount, isLoading } = row;
+  const { balance, value, rewardValue, amount, isLoading } = row;
 
   const poolAmount = isPoolAmount(amount) ? amount : undefined;
 
@@ -142,7 +169,13 @@ function Item({
       <Table borderLeftWidth={2}>
         <Tbody>
           {rows.map(row => (
-            <Item key={row.amount.token.symbol} row={row} vsCurrency={vsCurrency} />
+            <Item
+              key={row.amount.token.symbol}
+              row={row}
+              vsCurrency={vsCurrency}
+              hideChangeVisibleButton
+              hideGoToButton
+            />
           ))}
         </Tbody>
       </Table>
@@ -167,7 +200,16 @@ function Item({
       </Td>
       <Td>
         <Skeleton isLoaded={!isLoading}>
-          <DisplayValue value={value} unit={vsCurrency.toUpperCase()} />
+          <Stat>
+            <StatNumber>
+              {displayNumber(value)} {vsCurrency.toUpperCase()}
+            </StatNumber>
+            {rewardValue > 0 && (
+              <StatHelpText marginBottom={0}>
+                Unclaimed {displayNumber(rewardValue)} {vsCurrency.toUpperCase()}
+              </StatHelpText>
+            )}
+          </Stat>
         </Skeleton>
       </Td>
       {!hideChangeVisibleButton && (
@@ -180,6 +222,17 @@ function Item({
               onClick={() => onChangeTokenVisible(amount.token, !visible)}
             />
           </Tooltip>
+        </Td>
+      )}
+      {!hideGoToButton && (
+        <Td>
+          {amount.located?.url && (
+            <Tooltip label={`Go to ${amount.located.name}`}>
+              <Link href={amount.located.url} target="_blank">
+                <Icon as={FaExternalLinkAlt} />
+              </Link>
+            </Tooltip>
+          )}
         </Td>
       )}
     </Tr>
