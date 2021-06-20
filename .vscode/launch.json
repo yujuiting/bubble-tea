@@ -25,7 +25,8 @@
       "cwd": "${workspaceRoot}",
       "internalConsoleOptions": "openOnSessionStart",
       "skipFiles": ["<node_internals>/**", "node_modules/**"],
-      "envFile": "${workspaceFolder}/packages/client/.env"
+      "envFile": "${workspaceFolder}/packages/client/.env",
+      "sourceMaps": true
     }
   ]
 }
