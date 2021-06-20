@@ -11,6 +11,7 @@ build-packages:
 	yarn workspace @bubble-tea/ethereum build && \
 	yarn workspace @bubble-tea/solana build && \
 	yarn workspace @bubble-tea/beefy.finance build && \
+	yarn workspace @bubble-tea/convexfinance.com build && \
 	yarn workspace @bubble-tea/network-provider build
 
 dev:
