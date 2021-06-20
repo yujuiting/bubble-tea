@@ -2,16 +2,23 @@ import { BigNumber } from '@ethersproject/bignumber';
 import { Chain, createUnkownChain } from './chain';
 import { createUnkownToken, Token } from './token';
 import { cacheKey } from './keys';
+import { DefiProtocol } from './defi';
 
 export interface TokenAmount {
   chain: Chain;
   token: Token;
   amount: string;
   contains?: TokenAmount[];
+  located?: DefiProtocol;
 }
 
 export interface PoolAmount extends TokenAmount {
   contains: TokenAmount[];
+}
+
+export interface StakedAmount extends TokenAmount {
+  located: DefiProtocol;
+  isReward?: boolean;
 }
 
 export const noopTokenAmount: TokenAmount = {
