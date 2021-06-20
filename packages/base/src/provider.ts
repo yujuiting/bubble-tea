@@ -1,7 +1,8 @@
 import { Address } from './wallet';
 import { Chain } from './chain';
 import { Token } from './token';
-import { TokenAmount, PoolAmount, StakedAmount } from './token-amount';
+import { TokenAmount, PoolAmount } from './token-amount';
+import { DefiProtocol } from './defi';
 
 // fetch balances of tokens which this address holded
 export interface BalanceFetcher {
@@ -18,6 +19,9 @@ export interface PoolBalanceFetcher {
   (pool: Address, owner: Address): Promise<PoolAmount>;
 }
 
-export interface StakedBalanceFetcher {
-  (owner: Address): Promise<StakedAmount[]>;
+export interface DefiProvider {
+  chain: Chain;
+  defiProtocol: DefiProtocol;
+  hasInteractedWith(interactedAddresses: Address[]): Promise<boolean>;
+  fetchBalance: BalanceFetcher;
 }
