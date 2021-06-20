@@ -1,11 +1,8 @@
-import { Address, createUnkownToken, env, PoolBalanceFetcher, TokenAmount } from '@bubble-tea/base';
-import { chain, fetchBEP20Token } from '@bubble-tea/binance-smart-chain';
+import { Address, createUnkownToken, PoolBalanceFetcher, TokenAmount } from '@bubble-tea/base';
+import { chain, fetchBEP20Token, provider } from '@bubble-tea/binance-smart-chain';
 import { fetchAbi } from '@bubble-tea/bscscan';
 import { BigNumber } from '@ethersproject/bignumber';
 import { Contract } from '@ethersproject/contracts';
-import { JsonRpcBatchProvider } from '@ethersproject/providers';
-
-const provider = new JsonRpcBatchProvider(env('BSC_ENDPOINT'));
 
 export const fetchBalance: PoolBalanceFetcher = async (pool: Address, owner: Address) => {
   const poolAbi = await fetchAbi(pool);
