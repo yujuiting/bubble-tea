@@ -1,5 +1,5 @@
+import { Address, Cache, env, makeQueryParams, rateLimiter } from '@bubble-tea/base';
 import fetch from 'node-fetch';
-import { Address, rateLimiter, env, makeQueryParams } from '@bubble-tea/base';
 
 const endpoint = 'https://api.bscscan.com/api';
 
@@ -56,6 +56,13 @@ export async function fetchAccountERC721TokenTransactions(
   return (await api<Response<Transaction[]>>('account', 'tokennfttx', { address, sort, ...rest })).result;
 }
 
+const abiCache: Record<string, Cache<string> | undefined> = {};
+
 export async function fetchAbi(address: Address) {
-  return (await api<Response<string>>('contract', 'getabi', { address })).result;
+  let cache = abiCache[address];
+  if (!cache) {
+    cache = new Cache(async () => (await api<Response<string>>('contract', 'getabi', { address })).result, 86400000);
+    abiCache[address] = cache;
+  }
+  return await cache.get();
 }
