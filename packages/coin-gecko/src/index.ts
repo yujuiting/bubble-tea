@@ -96,3 +96,29 @@ export async function findCoinGeckoId(name: string, symbol: string) {
   if (id) nameAndSymbolToId.set(cacheKey(name, symbol), id);
   return id;
 }
+
+export interface Coin {
+  id: string;
+  name: string;
+  symbol: string;
+  asset_platform_id: string | null;
+  platforms: {
+    [platform_id: string]: string | undefined;
+  };
+  image: {
+    thumb: string;
+    small: string;
+    large: string;
+  };
+}
+
+const coinCache = new Map<string, Coin>();
+
+export async function fetchCoin(coinGeckoId: string) {
+  let cache = coinCache.get(coinGeckoId);
+  if (cache) return cache;
+
+  cache = await api<Coin>(`coins/${coinGeckoId}`);
+  coinCache.set(coinGeckoId, cache);
+  return cache;
+}
