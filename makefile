@@ -12,10 +12,20 @@ build-packages:
 	yarn workspace @bubble-tea/solana build && \
 	yarn workspace @bubble-tea/beefy.finance build && \
 	yarn workspace @bubble-tea/convexfinance.com build && \
-	yarn workspace @bubble-tea/network-provider build
+	yarn workspace @bubble-tea/network-provider build && \
+	yarn workspace @bubble-tea/server build
 
-dev:
+dev-client:
 	yarn workspace @bubble-tea/client dev
 
-build: build-packages
+dev-server:
+	yarn workspace @bubble-tea/server dev
+
+build-client: build-packages
 	yarn workspace @bubble-tea/client build
+
+build-server:
+	yarn workspace @bubble-tea/server build
+
+take-all-snapshot: 
+	node -r dotenv/config packages/server/dist/scripts/take-all-snapshot.js
