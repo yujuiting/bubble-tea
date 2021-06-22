@@ -24,7 +24,7 @@ dev-server:
 build-client: build-packages
 	yarn workspace @bubble-tea/client build
 
-build-server:
+build-server: build-packages
 	yarn workspace @bubble-tea/server build
 
 take-all-snapshot: 
